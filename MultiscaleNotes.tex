@@ -178,7 +178,7 @@ R_i = \int_{\Omega}\sigma_{ij} \frac{\partial \phi}{\partial x_j} d\Omega - \int
 %
 where repeated indices are summed. 
 
-As seen in Eq.\ \eqref{eq:DR[u]_matrix} the tangent-stiffness matrix is calculated from the derivatives of $\pmb{R}$. Since the elements of $\pmb{R}$ are integral equations (c.f., Eq.\ \ref{eq:R_index}), we apply the Leibniz integration rule (\red{Actually need to apply the Reynold's Transport Theorem here}),
+As seen in Eq.\ \eqref{eq:DR[u]_matrix} the tangent-stiffness matrix is calculated from the derivatives of $\pmb{R}$. Since the elements of $\pmb{R}$ are integral equations (c.f., Eq.\ \ref{eq:R_index}), we apply the Leibniz integration rule (\red{Actually need to apply the Reynold's Transport Theorem here because integration bounds change as system is deformed}),
 %
 \begin{equation}
 \frac{\partial}{\partial x}\left(\int_{y_0}^{y_1} f(x,y) dy \right) = \int_{y_0}^{y_1} \frac{\partial f(x,y)}{\partial x} dy,
