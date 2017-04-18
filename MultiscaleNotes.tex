@@ -42,65 +42,52 @@
 
 \section{Macro-scale}
 
-\subsection{Weak Formulation}
-We are interested in solving the following strong-form problem on the macroscale
-%
-\begin{align}
-&\nabla \cdot \pmb{\sigma} = 0 \ \text{ on } \ \Omega \nonumber\\
-&\pmb{\sigma} \cdot \pmb{n} = \bar{\pmb{t}} \ \text{ on } \ \Gamma_t \nonumber\\
-&\pmb{u} = \bar{\pmb{u}} \ \text{ on } \ \Gamma_u 
-\label{eq:strong_form}
-\end{align}
-%
-where $\bar{\pmb{t}}$ and $\bar{\pmb{u}}$ are prescribed traction and displacements, respectively, and $\pmb{\sigma}$ is the Cauchy stress tensor
-%
-\begin{eqnarray}
-[\pmb{\sigma}] \equiv
-\begin{bmatrix}
-\sigma_{11} & \sigma_{12} & \sigma_{13} \\
-\sigma_{21} & \sigma_{22} & \sigma_{23} \\
-\sigma_{31} & \sigma_{32} & \sigma_{33} 
-\end{bmatrix} .
-\label{eq:Cauchy_stress_tensor}
-\end{eqnarray}
-%
-Since we are using the finite-element method (FEM), we will need to consider the weak form of Eq.\ \eqref{eq:strong_form}. The weak form can be obtained by multiplying both sides by an admissible test function $\phi$ and integrating over the domain:
-%
-\begin{align}
-&\int_{\Omega} \phi (\nabla \cdot \pmb{\sigma})d\Omega  = 0 \ \ \forall \phi \in U_0 \nonumber\\
-&\int_{\Gamma_t}\phi (\bar{\pmb{t}}-\pmb{\sigma} \cdot \pmb{n})d\Gamma_t = 0 \ \ \forall \phi \in U_0 \nonumber\\
-&U_0 = \{\phi \mid \phi \in H^1, \phi = 0 \ \text{ on } \Gamma_u \} .
-\label{eq:weak_form1}
-\end{align}
-%
+\subsection{Governing Equation}
 
-Next we apply the product rule and divergence theorem:
+The divergence of the macroscopic stress tensor, $\pmb{\sigma}$ is derived by applying the Reynolds transport theorem to the volume-averaged stress and invoking microscopic equilibrium \cite{Chandran:2007hy,Stylianopoulos:2007dp} 
 %
 \begin{equation}
-\nabla \cdot (\phi \pmb{\sigma}) = \pmb{\sigma} \nabla \phi + \phi (\nabla \cdot \pmb{\sigma})\ \text{ and } \ \int_{\Omega} \nabla \cdot \textbf{F} d\Omega = \int_{\Gamma} \textbf{F} \cdot \textbf{n} d\Gamma,
+\sigma_{ij,i} = \frac{1}{v} \int_{\partial v} \left( s_{ij} - \sigma_{ij} \right)u_{k,i}n_k da,
+\label{eq:macro_stress_divergence}
 \end{equation}
 %
-respectively, to the first relationship in Eq.\ \eqref{eq:weak_form1} to obtain
+where $u$ is the displacement of the RVE boundary, $n_k$ is the corresponding unit normal vector, and $s_{ij}$ are elements of the microscopic stress tensor. A volume averaging of $s_{ij}$ is employed to obtain $\sigma_{ij}$ \cite{Chandran:2007hy}:
 %
-\begin{eqnarray}
-\int_{\Omega} \phi (\nabla \cdot \pmb{\sigma})d\Omega &=&\int_{\Omega} \nabla \cdot (\phi \pmb{\sigma}) d\Omega - \int_{\Omega} \pmb{\sigma} \nabla \phi d\Omega \nonumber\\
+\begin{equation}
+\sigma_{ij} = \frac{1}{v}\int_{v}s_{ij} dv,
+\label{eq:macro_stress_volume_avg}
+\end{equation}
 %
-&=& \int_{\Gamma} (\phi \pmb{\sigma}) \cdot \pmb{n} d\Gamma - \int_{\Omega} \pmb{\sigma} \nabla \phi d\Omega .
-\end{eqnarray}
-%
-Note that we have applied the product rule in the first line and the divergence theorem in the second line. Using the above relationship, Eq.\ \eqref{eq:weak_form1} becomes
+where $v$ is material in the macroscopic deformation field, i.e, the volume changes as the macroscopic finite-element mesh is deformed.
+
+The virtual work, $\delta w$, is obtained by rewritting Eq.\ \eqref{eq:macro_stress_divergence} in a residual form, $\pmb{r}$, and multiplying by a virtual velocity, $\delta \pmb{v}$ (also know as a test function) \cite{JavierBonet:2008uxa}
 %
 \begin{align}
-&\int_{\Omega} \pmb{\sigma} \nabla \phi d\Omega = \int_{\Gamma} (\phi \pmb{\sigma}) \cdot \pmb{n} d\Gamma = \int_{\Gamma} \phi \bar{\pmb{t}} d\Gamma \ \ \forall \phi \in U_0 \nonumber\\
- &U_0 = \{\phi \mid \phi \in H^1, \phi = 0 \ \text{ on } \Gamma_u \} .
-\label{eq:weak_form}
+\delta W &= \left(\sigma_{ij,i} - \frac{1}{v} \int_{\partial v} \left( s_{ij} - \sigma_{ij} \right)u_{k,i}n_k dv \right) \cdot \delta \pmb{v} \nonumber\\
+%
+&=\pmb{r} \cdot \delta \pmb{v}.
+\label{eq:virtual_work_residual_form}
 \end{align}
 %
-Note that we have not used a constitutive relation to define $\pmb{\sigma}$ in terms of displacements. As shown later on, the values of $\pmb{\sigma}$ are obtained from the microscale.
+Applying Gauss's theorem and integration by parts to Eq.\ \eqref{eq:virtual_work_residual_form} results in a more useful form of the virtual work 
+%
+\begin{eqnarray}
+\delta W &=& \int_V \pmb{\sigma}: \delta\pmb{d} dV - \int_{\partial V} \pmb{t} \cdot \delta \pmb{v} dA - \pmb{Q} \cdot \delta \pmb{v} \nonumber\\
+%
+&=& \delta W_{int} + \delta W_{ext} = 0,
+\label{eq:virtual_work}
+\end{eqnarray}
+%
+where $\delta \pmb{d}$ is the virtual rate of deformation tensor, $\pmb{t}$ is the traction vector, and the elements of $\pmb{Q}$ are 
+%
+\begin{equation}
+Q_j = \frac{1}{v} \int_{\partial v} (s_{ij} - \sigma_{ij}) u_{k,i} n_k dv.
+\end{equation}
+%
 
 \subsection{Newton-Raphson Method and the Tangent-Stiffness Matrix}
 
-The Newton-Raphson procedure for solving a nonlinear set of equations is [Bonet and Wood]
+The Newton-Raphson procedure for solving a nonlinear set of equations is \cite{JavierBonet:2008uxa}
 %
 \begin{eqnarray}
 \pmb{K}(\pmb{u}^k) \delta \pmb{u} = - \pmb{R}(\pmb{u}^k), \ \pmb{u}^{k+1} = \pmb{u}^k + \delta \pmb{u},
@@ -110,7 +97,7 @@ The Newton-Raphson procedure for solving a nonlinear set of equations is [Bonet 
 where $\pmb{R}$ is the out-of-balance force, $\pmb{K}$ is the tangent stiffness matrix, and the superscript $k$ indicates the pseudo time step of the procedure. The left-hand-side of  Eq.\ \eqref{eq:Newton-Raphson} is determined from the directional derivative of $\pmb{R}$ with respect to $\pmb{u}^k$ and in the direction of $\delta \pmb{u}$:
 %
 \begin{eqnarray}
-\pmb{K}(\pmb{u}^k) \delta \pmb{u} &=& D\pmb{R}(\pmb{u}^k)[\pmb{u}] \nonumber\\
+\pmb{K}(\pmb{u}^k) \delta \pmb{u} &=& D\pmb{R}(\pmb{u}^k)[\delta \pmb{u}] \nonumber\\
 %
 &=& \frac{d}{d\epsilon} \bigg|_{\epsilon=0}\pmb{R}(\pmb{u}^k + \epsilon \delta \pmb{u}) \nonumber\\
 &=& \frac{d \pmb{R}}{d\pmb{u}^k} \frac{d(\pmb{u}^k + \epsilon \delta \pmb{u})}{d\epsilon} \bigg|_{\epsilon=0} \nonumber\\
@@ -143,67 +130,35 @@ R_1 \\ R_2 \\ R_3
 \end{eqnarray}
 %
 
-To apply the Newton-Raphson procedure to our problem of interest, $\pmb{R}$ is defined in terms of Eq.\ \eqref{eq:weak_form}:
+To apply the Newton-Raphson procedure to our problem, the virtual work in Eq.\ \eqref{eq:virtual_work} must be linearized by taking the directional derivative of $\delta W$ with respect to $\delta \pmb{v}$ in the direction of $\delta \pmb{u}$ at the configuration $\phi$
+%
+\begin{equation}
+D\delta W (\phi,\delta \pmb{v}) [\delta \pmb{u}] = D\delta W_{int} (\phi,\delta \pmb{v}) [\delta \pmb{u}] - D\delta W_{ext} (\phi,\delta \pmb{v}) [\delta \pmb{u}].
+\end{equation}
+%
+To simplify the linearization procedure, the linearization is first performed on Eq.\ \eqref{eq:virtual_work} in its material description to avoid having to deal with a changing volume. Subsequently, the push-forward operation is employed to obtain the linearization for the spatial description of Eq.\ \eqref{eq:virtual_work}
+%
+\begin{eqnarray}
+D\delta W(\phi,\delta \pmb{v})[\delta \pmb{u}]  &=& \pmb{K}(\delta \pmb{v})[\delta \pmb{u}] \nonumber\\
+%
+&=& \int_V \left(\delta d_{ij} \frac{\partial \sigma_{ij}}{\partial e_{kl}} \varepsilon_{kl} +  \sigma_{ij} \frac{\partial \delta u_j}{\partial x_i}\frac{\partial \delta v_i}{\partial x_j}\right) d V - \int_{\partial V} t_i \delta v_i dA - Q_i \delta v_j,
+\label{eq:virtual_work_linearized}
+\end{eqnarray}
+%
+where $\pmb{e}$ and $\pmb{\varepsilon}$ are the Eulerian (or Almansi) strain tensor and small-strain tensor, respectively:
 %
 \begin{align}
-&\pmb{R} = \int_{\Omega} \pmb{\sigma} \nabla \phi d\Omega - \int_{\Gamma} \phi \bar{\pmb{t}} d\Gamma \ \ \forall \phi \in U_0 \nonumber\\
-&U_0 = \{\phi \mid \phi \in H^1, \phi = 0 \ \text{ on } \Gamma_u \} .
-\label{eq:R}
+&\pmb{e} = \frac{1}{2}(\pmb{I} - \pmb{b}^{-1}) \nonumber\\
+%
+&\pmb{\varepsilon} = \frac{1}{2}\left(\nabla \pmb{u} + (\nabla \pmb{u})^T\right) \nonumber\\
+%
+&\pmb{b} = \pmb{F}\pmb{F}^T .
 \end{align}
-% 
-Equation \eqref{eq:R} can also be written in matrix form
 %
-\begin{eqnarray}
-[\pmb{R}] = \int_{\Omega} [\pmb{\sigma}] [\nabla \phi] d\Omega - \int_{\Gamma} \phi [\bar{\pmb{t}}] d\Gamma, \ \ \text{where} \ \
-%
-[\nabla \phi] \equiv 
-\begin{bmatrix}
-\frac{\partial \phi}{\partial x_1} \\ \frac{\partial \phi}{\partial x_2} \\ \frac{\partial \phi}{\partial x_3}
-\end{bmatrix}  \ \text{and} \ \ 
-%
-[\bar{\pmb{t}}] \equiv 
-\begin{bmatrix}
-\bar{t}_1 \\ \bar{t}_2 \\ \bar{t}_3
-\end{bmatrix},
-%
-\label{eq:R_matrix}
-\end{eqnarray}
-%
-as well as with index notation as 
+In the multiscale formulation, the Cauchy stresses and their derivatives in Eq.\ \eqref{eq:virtual_work_linearized}:
 %
 \begin{equation}
-R_i = \int_{\Omega}\sigma_{ij} \frac{\partial \phi}{\partial x_j} d\Omega - \int_{\Gamma} \phi \bar{t}_i d\Gamma,
-\label{eq:R_index}
-\end{equation}
-%
-where repeated indices are summed. 
-
-As seen in Eq.\ \eqref{eq:DR[u]_matrix} the tangent-stiffness matrix is calculated from the derivatives of $\pmb{R}$. Since the elements of $\pmb{R}$ are integral equations (c.f., Eq.\ \ref{eq:R_index}), we apply the Leibniz integration rule (\red{Actually need to apply the Reynold's Transport Theorem here because integration bounds change as system is deformed}),
-%
-\begin{equation}
-\frac{\partial}{\partial x}\left(\int_{y_0}^{y_1} f(x,y) dy \right) = \int_{y_0}^{y_1} \frac{\partial f(x,y)}{\partial x} dy,
-\label{eq:leibniz}
-\end{equation}
-%
-to express the tangent-stiffness matrix in terms of the Cauchy stress and the derivatives of the Cauchy stress and test function. Each element of the tangent-stiffness matrix is expressed in index notation as
-%
-\begin{eqnarray}
-[\pmb{K}(\pmb{u}^k)]_{ij} \equiv \frac{\partial R_i}{\partial u_j^k} &=& \int_{\Omega} \frac{\partial \sigma_{il}}{\partial u_j^k} \frac{\partial \phi}{\partial x_l}  +  \sigma_{il} \frac{\partial}{\partial u_i^k}\frac{\partial \phi}{\partial x_l} d\Omega - \int_{\Gamma} \bar{t}_i \frac{\partial \phi}{\partial u_j^k} d\Gamma .
-\label{eq:tangent-stiffness_index}
-\end{eqnarray}
-%
-
-The derivatives of $\phi$ in Eq.\ \eqref{eq:tangent-stiffness_index}:
-%
-\begin{equation}
-\frac{\partial \phi}{\partial x_l}, \ \ \frac{\partial}{\partial u_i^k}\frac{\partial \phi}{\partial x_l}, \ \text{and} \ \frac{\partial \phi}{\partial u_j^k}, 
-\label{eq:phi_terms}
-\end{equation}
-%
-are evaluated using linear tetrahedral shape functions, while the Cauchy stresses and their derivatives:
-%
-\begin{equation}
-\sigma_{il} \ \text{and} \ \frac{\partial \sigma_{il}}{\partial u_j^k},
+\sigma_{ij} \ \text{and} \ \frac{\partial \sigma_{ij}}{\partial e_{kl}},
 \label{eq:sigma_terms}
 \end{equation}
 %
@@ -213,18 +168,33 @@ are evaluated from calculations at the microscale representative volume elements
 %
 \subsection{Cauchy Stress}
 %
-According to [Stylianopolous and Barocas] an element of the Cauchy stress tensor can be obtained from a volume-averaging technique
+The macroscopic stress tensor is obtained by applying Gauss's theorem to Eq.\ \eqref{eq:macro_stress_volume_avg}
+%
+\begin{eqnarray}
+\sigma_{ij} &=& \frac{1}{v}\int_v s_{ij} dv \nonumber\\
+%
+&=& \frac{1}{v} \int_v (s_{kj} x_{i,k}) dv \nonumber\\
+%
+&=& \frac{1}{v} \int_v (s_{kj} x_i)_{,k}dv - \frac{1}{v}\int_v s_{kj,k} x_i dv \nonumber\\
+%
+&=& \frac{1}{v} \int_{\partial v} n_k s_{kj} x_i da \nonumber\\
+%
+&=& \frac{1}{v} \int_{\partial v} x_i t_j da,
+\label{eq:macro_stress_gauss_thm}
+\end{eqnarray}
+%
+where $n_k s_{kj} = t_j$ is the the traction exerted on the boundaries of the RVE. In discrete form, the macro stress becomes
 %
 \begin{equation}
-\sigma_{ij} = \frac{1}{V} \sum_{n \in bcl} x_i^{n} T_j^{n} 
-\label{eq:cauchy_stress_element}
+\sigma_{ij} = \frac{1}{v} \sum_{n \in bcl} x_i^{n} T_j^{n} 
+\label{eq:macro_stress_discrete}
 \end{equation}
 %
-where $V$ is the current volume of the RVE, $x_i^{n}$ is the $i^{th}$ coordinate of the cross-link on the boundary of the RVE ($bcl$), and $T_j^{n}$ is the $j^{th}$ component of the internal force of a cross-link on the boundary. 
+where $x_i^{n}$ is the $i^{th}$ coordinate of the cross-link on the boundary of the RVE ($bcl$), and $T_j^{n}$ is the $j^{th}$ component of the internal force of a cross-link on the boundary. 
 %
 \subsection{Cauchy-Stress Derivative}
 %
-The derivative of the Cauchy stress is evaluated by using Eq.\ \eqref{eq:cauchy_stress_element} and applying the chain rule
+The derivative of the Cauchy stress is evaluated by using Eq.\ \eqref{eq:macro_stress_discrete} and applying the chain rule
 %
 \begin{eqnarray}
 \frac{\partial \sigma_{ij}}{\partial  u^k_m}  &=& \frac{\partial \sigma_{ij}}{\partial x_l^{\text{RVE}}} \frac{\partial x_l^{\text{RVE}}}{\partial u^k_m} \nonumber\\
