@@ -47,43 +47,72 @@
 The divergence of the macroscopic stress tensor, $\pmb{\sigma}$ is derived by applying the Reynolds transport theorem to the volume-averaged stress and invoking microscopic equilibrium \cite{Chandran:2007hy,Stylianopoulos:2007dp} 
 %
 \begin{equation}
-\sigma_{ij,i} = \frac{1}{v} \int_{\partial v} \left( s_{ij} - \sigma_{ij} \right)u_{k,i}n_k da,
+\sigma_{ij,i}^{(M)} = \frac{1}{V^{(m)}} \int_{\partial V^{(m)}} \left( s_{ij}^{(m)} - \sigma_{ij}^{(M)} \right)u_{k,i}^{(m)} n_k dA^{(m)},
 \label{eq:macro_stress_divergence}
 \end{equation}
 %
-where $u$ is the displacement of the RVE boundary, $n_k$ is the corresponding unit normal vector, and $s_{ij}$ are elements of the microscopic stress tensor. A volume averaging of $s_{ij}$ is employed to obtain $\sigma_{ij}$ \cite{Chandran:2007hy}:
+where $u_k^{(m)}$ is the displacement of the RVE boundary on the microscale (right superscript $(m)$), $n_k$ is the unit normal vector, and $s_{ij}^{(m)}$ are elements of the microscopic stress tensor. A volume averaging of $s_{ij}^{(m)}$ is employed to obtain $\sigma_{ij}^{(M)}$ \cite{Chandran:2007hy}:
 %
 \begin{equation}
-\sigma_{ij} = \frac{1}{v}\int_{v}s_{ij} dv,
+\sigma_{ij}^{(M)} = \frac{1}{V^{(m)}}\int_{V^{(m)}}s_{ij}^{(m)} dV^{(m)},
 \label{eq:macro_stress_volume_avg}
 \end{equation}
 %
-where $v$ is material in the macroscopic deformation field, i.e, the volume changes as the macroscopic finite-element mesh is deformed.
+where $V^{(m)}$ is the microscale volume.
 
-The virtual work, $\delta w$, is obtained by rewritting Eq.\ \eqref{eq:macro_stress_divergence} in a residual form, $\pmb{r}$, and multiplying by a virtual velocity, $\delta \pmb{v}$ (also know as a test function) \cite{JavierBonet:2008uxa}
+The virtual work, $\delta W$, is obtained by rewritting Eq.\ \eqref{eq:macro_stress_divergence} in a residual form, $\pmb{r}$, and multiplying by a virtual velocity, $\delta \pmb{v}$ (also known as a test function) \cite{JavierBonet:2008uxa}
 %
 \begin{align}
-\delta W &= \left(\sigma_{ij,i} - \frac{1}{v} \int_{\partial v} \left( s_{ij} - \sigma_{ij} \right)u_{k,i}n_k dv \right) \cdot \delta \pmb{v} \nonumber\\
+\delta W &= \int_{V^{(M)}} \left(\sigma_{ij,i}^{(M)} - \frac{1}{V^{(m)}} \int_{\partial V^{(m)}} \left( s_{ij}^{(m)} - \sigma_{ij}^{(M)} \right)u_{k,i}^{(m)} n_k dA^{(m)} \right)  \delta v_j^{(M)}  dV^{(M)} \nonumber\\
 %
-&=\pmb{r} \cdot \delta \pmb{v}.
-\label{eq:virtual_work_residual_form}
+&= \int_{V_0^{(M)}} \left(\sigma_{ij,i}^{(M)} - \frac{1}{V^{(m)}} \int_{\partial V^{(m)}} \left( s_{ij}^{(m)} - \sigma_{ij}^{(M)} \right)u_{k,i}^{(m)} n_k dA^{(m)} \right)  \delta v_j^{(M)}J dV_0^{(M)}  \nonumber\\
+%
+&= \int_{V_0^{(M)}} \left(\sigma_{ij,i}^{(M)} - Q_j^{(m/M)} \right) \delta v_j^{(M)}J dV_0^{(M)}   \nonumber\\
+%
+&= \int_{V_0^{(M)}} \left(\text{div}\pmb{\sigma}^{(M)} - \pmb{Q}^{(m/M)} \right)  \cdot \delta \pmb{v}^{(M)}J dV_0^{(M)} ,
+\label{eq:virtual_work}
 \end{align}
 %
-Applying Gauss's theorem and integration by parts to Eq.\ \eqref{eq:virtual_work_residual_form} results in a more useful form of the virtual work 
-%
-\begin{eqnarray}
-\delta W &=& \int_V \pmb{\sigma}: \delta\pmb{d} dV - \int_{\partial V} \pmb{t} \cdot \delta \pmb{v} dA - \pmb{Q} \cdot \delta \pmb{v} \nonumber\\
-%
-&=& \delta W_{int} + \delta W_{ext} = 0,
-\label{eq:virtual_work}
-\end{eqnarray}
-%
-where $\delta \pmb{d}$ is the virtual rate of deformation tensor, $\pmb{t}$ is the traction vector, and the elements of $\pmb{Q}$ are 
+where  
 %
 \begin{equation}
-Q_j = \frac{1}{v} \int_{\partial v} (s_{ij} - \sigma_{ij}) u_{k,i} n_k dv.
+Q_j^{(m/M)} = \frac{1}{V^{(m)}} \int_{\partial V^{(m)}} \left( s_{ij}^{(m)} - \sigma_{ij}^{(M)} \right)u_{k,i}^{(m)} n_k dA^{(m)}.
 \end{equation}
 %
+Using the identity
+%
+\begin{equation}
+\text{div}(\pmb{\sigma}\delta\pmb{v} J) =  (\pmb{\sigma}:\delta\pmb{v})J + (\delta \pmb{v} \cdot \text{div}\pmb{\sigma})J + (\pmb{\sigma} \delta\pmb{v})\cdot \nabla J
+\end{equation}
+%
+Eq.\ \eqref{eq:virtual_work} becomes
+%
+\begin{eqnarray}
+\delta W &=& \int_{V_0^{(M)}} \left(\text{div}(\pmb{\sigma}^{(M)} \delta\pmb{v}^{(M)} J) - (\pmb{\sigma}^{(M)}:\nabla \delta \pmb{v}) J - (\pmb{\sigma}^{(M)}\delta \pmb{v}^{(M)})\cdot \nabla J \right)dV_0^{(M)} \nonumber\\
+%
+&-& \int_{V_0^{(M)}} \pmb{Q}^{(m/M)} \cdot \delta \pmb{v}^{(M)}J dV_0^{(M)} 
+%
+\end{eqnarray}
+%
+Further applying the divergence theorem we have
+%
+\begin{eqnarray}
+\delta W &=& \int_{\partial V_0^{(M)}} \pmb{n} \cdot \pmb{\sigma}^{(M)} \delta\pmb{v}^{(M)} J dA_0^{(M)} - \int_{V_0^{(M)}} \left((\pmb{\sigma}^{(M)}:\nabla \delta \pmb{v}) J + (\pmb{\sigma}^{(M)}\delta \pmb{v}^{(M)})\cdot \nabla J \right)dV_0^{(M)} \nonumber\\
+%
+&-& \int_{V_0^{(M)}} \pmb{Q}^{(m/M)} \cdot \delta \pmb{v}^{(M)}J dV_0^{(M)} \nonumber\\
+%
+&=& \int_{\partial V_0^{(M)}} \pmb{t}^{(M)} \cdot \delta\pmb{v}^{(M)} J dA_0^{(M)} - \int_{V_0^{(M)}} \left((\pmb{\sigma}^{(M)}:\nabla \delta \pmb{v}) J + (\pmb{\sigma}^{(M)}\delta \pmb{v}^{(M)})\cdot \nabla J \right)dV_0^{(M)} \nonumber\\
+%
+&-& \int_{V_0^{(M)}} \pmb{Q}^{(m/M)} \cdot \delta \pmb{v}^{(M)}J dV_0^{(M)} \nonumber\\
+&=& \int_{V_0^{(M)}} \left((\pmb{\sigma}^{(M)}:\delta \pmb{d}) J + (\pmb{\sigma}^{(M)}\delta \pmb{v}^{(M)})\cdot \nabla J \right)dV_0^{(M)} \nonumber\\
+%
+&-& \int_{\partial V_0^{(M)}} \pmb{t}^{(M)} \cdot \delta\pmb{v}^{(M)} J dA_0^{(M)} + \int_{V_0^{(M)}} \pmb{Q}^{(m/M)} \cdot \delta \pmb{v}^{(M)}J dV_0^{(M)} \nonumber\\
+%
+&=& \delta W_{int} + \delta W_{ext}
+\label{eq:virtual_work_final}
+\end{eqnarray}
+%
+where $\delta \pmb{d}^{(M)}$ is the virtual rate of deformation tensor and $\pmb{t}^{(M)}$ is the traction vector.
 
 \subsection{Newton-Raphson Method and the Tangent-Stiffness Matrix}
 
@@ -136,25 +165,132 @@ To apply the Newton-Raphson procedure to our problem, the virtual work in Eq.\ \
 D\delta W (\phi,\delta \pmb{v}) [\delta \pmb{u}] = D\delta W_{int} (\phi,\delta \pmb{v}) [\delta \pmb{u}] - D\delta W_{ext} (\phi,\delta \pmb{v}) [\delta \pmb{u}].
 \end{equation}
 %
-To simplify the linearization procedure, the linearization is first performed on Eq.\ \eqref{eq:virtual_work} in its material description to avoid having to deal with a changing volume. Subsequently, the push-forward operation is employed to obtain the linearization for the spatial description of Eq.\ \eqref{eq:virtual_work}
+Since the virtual work is expressed in the current configuration (c.f., Eq.\ \eqref{eq:virtual_work}), linearization is not straightforward because the integration bound changes with motion. Therefore, to move forward with the linearization procedure, we must first linearize the virtual work expressed in the reference configuration and then  employ a push-forward operation to obtain the linearization for the spatial description of Eq.\ \eqref{eq:virtual_work}. \red{Note that the form of the terms involving $\pmb{t}$ and $\pmb{Q}$ in Eq.\ \eqref{eq:virtual_work} do not change upon linearization because $\pmb{t}$ and $\pmb{Q}$ are assumed to not change with motion. Therefore, from this point on, only the linearization of internal virtual work, $\delta W_{int}$, is considered.} 
+
+The internal virtual work (c.f., Eq.\ \eqref{eq:virtual_work_final}) is
+%
+\begin{equation}
+\delta W_{int}(\phi,\delta \pmb{v}^{(M)}) = \int_{V_0^{(M)}} \left((\pmb{\sigma}^{(M)}:\delta \pmb{d}^{(M)}) J + (\pmb{\sigma}^{(M)}\delta \pmb{v}^{(M)})\cdot \nabla J \right)dV_0^{(M)}
+\end{equation}
+%
+% begin comment
+%The virtual work can be expressed in the reference configuration as 
+%
+%\begin{equation}
+%\delta W_{int}(\phi,\delta \pmb{v}) = \int_{V_0} \pmb{S}:\delta \dot{\pmb{E}} dV_0,
+%\label{eq:internal_virtual_work_reference}
+%\end{equation}
+%%
+%where $\pmb{S}$ and $\delta \dot{\pmb{E}}$ are the second Piola-Kirchhoff stress tensor and the virtual material strain rate tensor, respectively. The virtual material strain rate tensor is 
+%%
+%\begin{equation}
+%\delta \dot{\pmb{E}} = \frac{1}{2} (\delta \dot{\pmb{F}}^T \pmb{F} + \pmb{F}^T \dot{\pmb{F}}).
+%\end{equation}
+%%
+%Now that the bound of the integral in Eq.\ \eqref{eq:internal_virtual_work_reference} does not change, the linearization can be determined from the directional derivative as
+%%
+%\begin{eqnarray}
+%D\delta W_{int} (\phi,\delta \pmb{v}) [\delta \pmb{u}] &=& \int_{V_0} D(\delta \dot{\pmb{E}} : \pmb{S}[\pmb{u}] dV_0 \nonumber\\
+%%
+%&=& \int_{V_0} \delta \dot{\pmb{E}} : D\pmb{S}[\pmb{u}] dV_0 + \int_{V_0} \pmb{S}:D\delta \dot{\pmb{E}}[\pmb{u}] dV_0 \nonumber\\
+%%
+%&=& \int_{V_0} \delta \dot{E}_{ij} \frac{\partial S_{ij}}{\partial E_{kl}} DE_{kl}[\pmb{u}] dV_0 + \int_{V_0} S_{ij} \frac{\partial u_j}{\partial X_i} \frac{\partial \delta v_i}{\partial X_j} dV_0 \nonumber\\
+%%
+%&=&\int_{V_0} D E_{ij} [\delta \pmb{v}] \frac{\partial S_{ij}}{\partial E_{kl}} DE_{kl}[\pmb{u}] dV_0 + \int_{V_0} S_{ij} \frac{\partial u_j}{\partial X_i} \frac{\partial \delta v_i}{\partial X_j} dV_0,
+%\label{eq:internal_virtal_work_reference_linearized}
+%\end{eqnarray}
+%% 
+%where the following relationships have been used
+%%
+%\begin{align}
+%&\delta \dot{\pmb{E}} = D \pmb{E} [\delta \pmb{v}] \nonumber\\
+%%
+%&DS_{ij}[\pmb{u}] = \sum_{k,l=1}^3 \frac{\partial S_{ij}}{\partial E_{kl}}DE_{kl}[\pmb{u}] .
+%\end{align}
+%%
+%
+%To arrive at the linearization for the internal virtual work in the current configuration, the following pull-back and push-forward operations are used
+%%
+%\begin{align}
+%&D\pmb{E}[\delta \pmb{v}] = \pmb{F}^T \varepsilon \pmb{F}; \ \ \pmb{\varepsilon} = \frac{1}{2}\left(\nabla \pmb{u} + (\nabla \pmb{u})^T\right) \nonumber\\
+%%
+%& D\pmb{E}[\pmb{u}] = \pmb{F}^T \delta \pmb{d} \pmb{F}; \ \ \delta \pmb{d} = \frac{1}{2}\left(\nabla \delta \pmb{v}  + (\nabla \delta \pmb{v})^T\right) \nonumber\\
+%%
+%&\pmb{S} = J \pmb{F}^{-1} \pmb{\sigma} \pmb{F}^{-T} \nonumber\\
+%%
+%&\pmb{E} = \pmb{F}^T \pmb{e} \pmb{F}; \ \ \pmb{e} = \frac{1}{2}(\pmb{I} - \pmb{b}^{-1}); \ \ \pmb{b} = \pmb{F}\pmb{F}^T \nonumber\\
+%%
+%&J dV_0 = dV \nonumber\\
+%%
+%&\nabla_0 \pmb{u} = (\nabla \pmb{u}) \pmb{F} \nonumber\\
+%%
+%&\nabla_0 \delta \pmb{v} = (\nabla \delta \pmb{v}) \pmb{F}
+%\label{eq:push-pull_relations}
+%\end{align}
+%% 
+%Applying the relationships in Eq.\ \eqref{eq:push-pull_relations}, the linearization of the internal virtual work in the current configuration becomes
+%%
+%\begin{eqnarray}
+%D\delta W_{int} (\phi,\delta \pmb{v}) [\delta \pmb{u}] &=& \int_{V_0}  \pmb{F}^T \delta \pmb{d} \pmb{F} : \frac{\partial (J\pmb{F}^{-1} \pmb{\sigma} \pmb{F}^{-T})}{\partial \pmb{F}^T \pmb{e} \pmb{F}} : \pmb{F}^T \pmb{\varepsilon} \pmb{F} dV_0 + \int_{V_0} J \pmb{F}^{-1}\pmb{\sigma} \pmb{F}^{-T} : [\pmb{F}^T(\nabla \pmb{u})^T (\nabla \delta\pmb{v}) \pmb{F}] dV_0 \nonumber\\
+%%
+%&=& \int_{V}  \pmb{F}^T \delta \pmb{d} \pmb{F} : \frac{\partial (\pmb{F}^{-1} \pmb{\sigma} \pmb{F}^{-T})}{\partial \pmb{F}^T \pmb{e} \pmb{F}} : \pmb{F}^T \pmb{\varepsilon} \pmb{F} dV + \int_{V} \pmb{F}^{-1}\pmb{\sigma} \pmb{F}^{-T} : [\pmb{F}^T(\nabla \pmb{u})^T (\nabla \delta\pmb{v}) \pmb{F}] dV \nonumber\\
+%%
+%&=& \int_{V}  \pmb{F}^T \delta \pmb{d} \pmb{F} : \frac{\partial (\pmb{F}^{-1} \pmb{\sigma} \pmb{F}^{-T})}{\partial \pmb{F}^T \pmb{e} \pmb{F}}:\pmb{F}^T \pmb{\varepsilon} \pmb{F} dV + \int_{V} \pmb{\sigma} : [(\nabla \pmb{u})^T (\nabla \delta\pmb{v})] dV \nonumber\\
+%\end{eqnarray}
+%%
+%\red{can also rewrite as ...}
+%%
+%\begin{equation}
+%D\delta W_{int} (\phi,\delta \pmb{v}) [\delta \pmb{u}] = \int_{V} \delta \pmb{d} : \pmb{c} : \pmb{\varepsilon} dV + \int_{V} \pmb{\sigma} : [(\nabla \pmb{u})^T (\nabla \delta\pmb{v})] dV ,
+%\end{equation}
+%%
+%where
+%%
+%\begin{eqnarray}
+%c_{ijkl} &=& J^{-1} F_{iI} F_{jJ} F_{kK} F_{lL} \frac{\partial S_{IJ}}{\partial E_{KL}} \nonumber\\
+%%
+%&=& F_{iI} F_{jJ} F_{kK} F_{lL} \frac{\partial (F^{-1}_{Ir} \sigma_{rs} F^{-T}_{sJ})}{\partial E_{KL}} \nonumber\\
+%%
+%&=& F_{iI} F_{jJ} F_{kK} F_{lL} \left(\frac{\partial F^{-1}_{Ir}}{\partial E_{KL}} \sigma_{rs} F^{-T}_{sJ} + F^{-1}_{Ir}\frac{\partial \sigma_{rs}}{\partial E_{KL}} F^{-T}_{sJ} + F^{-1}_{Ir}\sigma_{rs}\frac{\partial F^{-T}_{sJ}}{\partial E_{KL}}  \right)
+%\end{eqnarray}
+%
+%
+
+%% begin comment
 %
 \begin{eqnarray}
-D\delta W(\phi,\delta \pmb{v})[\delta \pmb{u}]  &=& \pmb{K}(\delta \pmb{v})[\delta \pmb{u}] \nonumber\\
+D\delta W(\phi,\delta \pmb{v})[\delta \pmb{u}]  
 %
-&=& \int_V \left(\delta d_{ij} \frac{\partial \sigma_{ij}}{\partial e_{kl}} \varepsilon_{kl} +  \sigma_{ij} \frac{\partial \delta u_j}{\partial x_i}\frac{\partial \delta v_i}{\partial x_j}\right) d V - \int_{\partial V} t_i \delta v_i dA - Q_i \delta v_j,
+= \int_V \left(\delta d_{ij} \frac{\partial \sigma_{ij}}{\partial e_{kl}} \varepsilon_{kl} +  \sigma_{ij} \frac{\partial \delta u_j}{\partial x_i}\frac{\partial \delta v_i}{\partial x_j}\right) d V - \int_{\partial V} t_i \delta v_i dA - Q_i \delta v_j,
 \label{eq:virtual_work_linearized}
 \end{eqnarray}
 %
-where $\pmb{e}$ and $\pmb{\varepsilon}$ are the Eulerian (or Almansi) strain tensor and small-strain tensor, respectively:
+where $\pmb{e}$ and $\pmb{\varepsilon}$ are the Eulerian (or Almansi) strain tensor and small-strain tensor, respectively, and $\delta \pmb{d}$ is the virtual rate of deformation tensor:
 %
 \begin{align}
 &\pmb{e} = \frac{1}{2}(\pmb{I} - \pmb{b}^{-1}) \nonumber\\
 %
 &\pmb{\varepsilon} = \frac{1}{2}\left(\nabla \pmb{u} + (\nabla \pmb{u})^T\right) \nonumber\\
 %
-&\pmb{b} = \pmb{F}\pmb{F}^T .
+&\pmb{b} = \pmb{F}\pmb{F}^T \\
+%
+&\delta \pmb{d} = \frac{1}{2}\left(\nabla \delta \pmb{v}  + (\nabla \delta \pmb{v})^T\right).
 \end{align}
 %
+
+The linearization in Eq.\ \eqref{eq:virtual_work_linearized} can be cast into the framework of the Newton-Raphson procedure in Eq.\ \eqref{eq:Newton-Raphson} by discretization via shape functions:
+%
+\begin{align}
+&\pmb{u} = \sum_{a=1}^n N_a \pmb{x}_a \nonumber\\
+%
+&\delta \pmb{v} = \sum_{a=1}^n N_a \delta \pmb{v}_a \nonumber\\
+%
+&\delta \pmb{d} = \frac{1}{2} \sum_{a=1}^n (\delta \pmb{v}_a \otimes \nabla N_a + \nabla N_a \otimes \delta \pmb{v}_a) \nonumber\\
+%
+&\delta \pmb{\varepsilon} = \frac{1}{2} \sum_{a=1}^n (\pmb{u}_a \otimes \nabla N_a + \nabla N_a \otimes \pmb{u}_a)
+\end{align}
+%
+
 In the multiscale formulation, the Cauchy stresses and their derivatives in Eq.\ \eqref{eq:virtual_work_linearized}:
 %
 \begin{equation}
@@ -162,7 +298,38 @@ In the multiscale formulation, the Cauchy stresses and their derivatives in Eq.\
 \label{eq:sigma_terms}
 \end{equation}
 %
-are evaluated from calculations at the microscale representative volume elements (RVEs).
+are evaluated from calculations at the microscale representative volume elements (RVEs). In order to write the stress derivative in matrix form, Voigt notation is used 
+%
+\begin{eqnarray}
+[\sigma_{(i)}] \equiv 
+\begin{bmatrix}
+\sigma_{11} \\ \sigma_{22} \\ \sigma_{33} \\ \sigma_{12} \\ \sigma_{23} \\ \sigma_{13}
+\end{bmatrix} , \ \
+%
+[e_{(i)}] \equiv
+\begin{bmatrix}
+e_{11} \\ e_{22} \\ e_{33} \\ e_{12} \\ e_{23} \\ e_{13} 
+\end{bmatrix}, \ \text{and} \
+%
+\left[ \frac{\partial \sigma_{(i)}}{\partial e_{(j)}} \right] \equiv 
+\begin{bmatrix}
+\frac{\partial \sigma_{11}}{\partial e_{11}} & \frac{\partial \sigma_{11}}{\partial e_{22}} & \frac{\partial \sigma_{11}}{\partial e_{33}} & \frac{\partial \sigma_{11}}{\partial e_{12}} & \frac{\partial \sigma_{11}}{\partial e_{23}} & \frac{\partial \sigma_{11}}{\partial e_{13}} \\
+%
+\frac{\partial \sigma_{22}}{\partial e_{11}} & \frac{\partial \sigma_{22}}{\partial e_{22}} & \frac{\partial \sigma_{22}}{\partial e_{33}} & \frac{\partial \sigma_{22}}{\partial e_{12}} & \frac{\partial \sigma_{22}}{\partial e_{23}} & \frac{\partial \sigma_{22}}{\partial e_{13}} \\
+%
+\frac{\partial \sigma_{33}}{\partial e_{11}} & \frac{\partial \sigma_{33}}{\partial e_{22}} & \frac{\partial \sigma_{33}}{\partial e_{33}} & \frac{\partial \sigma_{33}}{\partial e_{12}} & \frac{\partial \sigma_{33}}{\partial e_{23}} & \frac{\partial \sigma_{33}}{\partial e_{13}} \\
+%
+\frac{\partial \sigma_{12}}{\partial e_{11}} & \frac{\partial \sigma_{12}}{\partial e_{22}} & \frac{\partial \sigma_{12}}{\partial e_{33}} & \frac{\partial \sigma_{12}}{\partial e_{12}} & \frac{\partial \sigma_{12}}{\partial e_{23}} & \frac{\partial \sigma_{12}}{\partial e_{13}} \\
+%
+\frac{\partial \sigma_{23}}{\partial e_{11}} & \frac{\partial \sigma_{23}}{\partial e_{22}} & \frac{\partial \sigma_{23}}{\partial e_{33}} & \frac{\partial \sigma_{23}}{\partial e_{12}} & \frac{\partial \sigma_{23}}{\partial e_{23}} & \frac{\partial \sigma_{23}}{\partial e_{13}} \\
+%
+\frac{\partial \sigma_{13}}{\partial e_{11}} & \frac{\partial \sigma_{13}}{\partial e_{22}} & \frac{\partial \sigma_{13}}{\partial e_{33}} & \frac{\partial \sigma_{13}}{\partial e_{12}} & \frac{\partial \sigma_{13}}{\partial e_{23}} & \frac{\partial \sigma_{13}}{\partial e_{13}} 
+\end{bmatrix},
+\label{eq:sigma_terms_Voigt}
+\end{eqnarray}
+%
+where the parenthesis around the subscripts indicate the use of Voigt notation.
+% end comment
 
 \section{Micro-scale}
 %
@@ -171,49 +338,52 @@ are evaluated from calculations at the microscale representative volume elements
 The macroscopic stress tensor is obtained by applying Gauss's theorem to Eq.\ \eqref{eq:macro_stress_volume_avg}
 %
 \begin{eqnarray}
-\sigma_{ij} &=& \frac{1}{v}\int_v s_{ij} dv \nonumber\\
+\sigma_{ij}^{(M)} &=& \frac{1}{V^{(m)}} \int_{V^{(m)}} s_{ij}^{(m)} dV^{(m)} \nonumber\\
 %
-&=& \frac{1}{v} \int_v (s_{kj} x_{i,k}) dv \nonumber\\
+&=& \frac{1}{V^{(m)}} \int_{V^{(m)}} (s_{kj}^{(m)} x_{i,k}^{(m)}) dV^{(m)} \nonumber\\
 %
-&=& \frac{1}{v} \int_v (s_{kj} x_i)_{,k}dv - \frac{1}{v}\int_v s_{kj,k} x_i dv \nonumber\\
+&=& \frac{1}{V^{(m)}} \int_{V^{(m)}} (s_{kj}^{(m)} x_i^{(m)})_{,k}dV^{(m)} - \frac{1}{V^{(m)}}\int_{V^{(m)}} s_{kj,k}^{(m)} x_i^{(m)} dV^{(m)} \nonumber\\
 %
-&=& \frac{1}{v} \int_{\partial v} n_k s_{kj} x_i da \nonumber\\
+&=& \frac{1}{V^{(m)}} \int_{\partial V^{(m)}} n_k s_{kj}^{(m)} x_i^{(m)} dA^{(m)} \nonumber\\
 %
-&=& \frac{1}{v} \int_{\partial v} x_i t_j da,
+&=& \frac{1}{V^{(m)}} \int_{\partial V^{(m)}} x_i^{(m)} t_j^{(m)} dA^{(m)},
 \label{eq:macro_stress_gauss_thm}
 \end{eqnarray}
 %
-where $n_k s_{kj} = t_j$ is the the traction exerted on the boundaries of the RVE. In discrete form, the macro stress becomes
+where $n_k s_{kj}^{(m)} = t_j^{(m)}$ is the the traction exerted on the boundaries of the RVE. In discrete form, the macroscopic stress becomes
 %
 \begin{equation}
-\sigma_{ij} = \frac{1}{v} \sum_{n \in bcl} x_i^{n} T_j^{n} 
+\sigma_{ij}^{(M)} = \frac{1}{V^{(m)}} \sum_{n \in bcl} {}^n x_i^{(m)} {}^n T_j^{(m)} 
 \label{eq:macro_stress_discrete}
 \end{equation}
 %
-where $x_i^{n}$ is the $i^{th}$ coordinate of the cross-link on the boundary of the RVE ($bcl$), and $T_j^{n}$ is the $j^{th}$ component of the internal force of a cross-link on the boundary. 
+where ${}^nx_i^{(m)}$ is the $i^{th}$ coordinate of the cross-link on the boundary of the RVE ($bcl$), and ${}^nT_j^{(m)}$ is the $j^{th}$ component of the internal force of a cross-link on the boundary. 
 %
 \subsection{Cauchy-Stress Derivative}
 %
 The derivative of the Cauchy stress is evaluated by using Eq.\ \eqref{eq:macro_stress_discrete} and applying the chain rule
 %
 \begin{eqnarray}
-\frac{\partial \sigma_{ij}}{\partial  u^k_m}  &=& \frac{\partial \sigma_{ij}}{\partial x_l^{\text{RVE}}} \frac{\partial x_l^{\text{RVE}}}{\partial u^k_m} \nonumber\\
+\frac{\partial \sigma_{ij}^{(M)}}{\partial  u^{(M)}_k}  &=& \frac{\partial \sigma_{ij}^{(M)}}{\partial {}^c u_l^{(m)}} \frac{\partial {}^c u_l^{(m)}}{\partial u^{(M)}_k} \nonumber\\
 %
-&=& \left [ \frac{\partial}{\partial x^{\text{RVE}}_l}  \left(\frac{1}{V} \sum_{n \in bcl} x_i^{n} T_j^{n}\right)+ \frac{1}{V} \frac{\partial}{\partial x^{\text{RVE}}_l} \left(\sum_{n \in bcl} x_i^{n} T_j^{n} \right) \right] \frac{\partial x_l^{\text{RVE}}}{\partial u^k_m} \nonumber\\
+&=& \left [ \frac{\partial}{\partial {}^c u^{(m)}_l}  \left(\frac{1}{V^{(m)}} \sum_{n \in bcl} {}^nx_i^{(m)} {}^nT_j^{(m)}\right)+ \frac{1}{V^{(m)}} \frac{\partial}{\partial {}^c u^{(m)}_l} \left(\sum_{n \in bcl} {}^nx_i^{(m)} {}^nT_j^{(m)} \right) \right] \frac{\partial {}^c u_l^{{(m)}}}{\partial u^{(M)}_k} \nonumber\\
 %
-&=&  \left[\frac{\partial}{\partial x^{\text{RVE}}_l}  \left(\frac{s_{ij}}{V} \right) + \frac{1}{V} \frac{\partial s_{ij}}{\partial x^{\text{RVE}}_l}\right]\frac{\partial x_l^{\text{RVE}}}{\partial u^k_m} \nonumber\\
+&=&  \left[\frac{\partial}{\partial {}^c u^{(m)}_l}  \left(\frac{s_{ij}^{(m)}}{V^{(m)}} \right) + \frac{1}{V^{(m)}} \frac{\partial s_{ij}^{(m)}}{\partial {}^c u^{(m)}_l}\right] \frac{\partial {}^c u_l^{{(m)}}}{\partial u^{(M)}_k} \nonumber\\
 %
-&=& \left[\frac{1}{V} \frac{\partial s_{ij}}{\partial x^{\text{RVE}}_l} -\frac{1}{V^2}\frac{\partial V}{\partial x^{\text{RVE}}_l}s_{ij} \right]\frac{\partial x_l^{\text{RVE}}}{\partial u^k_m},
+&=& \left[\frac{1}{V^{(m)}} \frac{\partial s_{ij}^{(m)}}{\partial {}^c u^{(m)}_l} -\frac{1}{(V^{(m)})^2}\frac{\partial V^{(m)}}{\partial {}^c u^{(m)}_l}s_{ij}^{(m)} \right] \frac{\partial {}^c u_l^{{(m)}}}{\partial u^{(M)}_k},
+\label{eq:dsigma_duM}
 \end{eqnarray}
 %
-where $x_l^{\text{RVE}}$ are the RVE corner coordinates and $s_{ij} \equiv \sum_{n \in bcl} x^n_i T^n_j$. Since our RVE is a hexahedron, the subscript $l$ ranges from 1 to 24; 8 corner nodes $\times$ 3 degrees of freedom per corner node.  Therefore, the calculation of the stress derivatives involves the calculation of three different derivatives:
+where ${}^c u_l^{{(m)}}$ is the $l^{th}$ corner (left superscript $c$) displacement at the microscale (right superscript $(m)$) and $s_{ij}^{(m)} \equiv \sum_{n \in bcl} {}^n x^{(m)}_i {}^nT^{(m)}_j$. Since our RVE is a hexahedron, the subscript $l$ ranges from 1 to 24; 8 corner nodes $\times$ 3 degrees of freedom per corner node.  From Eq.\ \eqref{eq:dsigma_duM}, the calculation of the stress derivatives involves the calculation of three different derivatives:
 %
 \begin{equation}
-\frac{\partial s_{ij}}{\partial x_l^{\text{RVE}} }, \ \
-\frac{\partial V}{\partial x_l^{\text{RVE}}}, \ \ \text{ and } \ \ 
-\frac{\partial x_l^{\text{RVE}}}{\partial u^k_m}
+\frac{\partial s_{ij}^{(m)}}{\partial {}^cu_l^{{(m)}} }, \ \
+\frac{\partial V^{(m)}}{\partial {}^c u_l^{{(m)}}}, \ \ \text{ and } \ \ 
+\frac{\partial {}^c u_l^{{(m)}}}{\partial u^{(M)}_k},
 \end{equation}
 %
+where the first two involve only microscale quantities and the third links the micro and macro scales.
+
 \subsubsection{Derivative of $s_{ij}$ with respect to RVE corner coordinates}
 %
 Applying the chain rule, the derivative of $s_{ij}$ can be written as
